@@ -7,6 +7,8 @@ public class Individual {
     private byte[] genes; 
     private double fitness;
     private String id;
+    
+    private GA myGA=GA.getInstance();
 
     /**
      * Create an Individual with a random gene string, and fitness=0
@@ -29,7 +31,8 @@ public class Individual {
      */
     public Individual(Individual ind)
     {
-        genes=ind.genes;
+        genes= new byte[myGA.getGeneLength()];
+        System.arraycopy(ind.getGenes(), 0, genes, 0,myGA.getGeneLength());  
         fitness=ind.fitness;
         id=ind.id;  
     }
@@ -84,22 +87,8 @@ public class Individual {
     
     public String getId(){return id;}
 
-//    public static Individual  copy(Individual ind)
-//    {
-//        
-//        
-//    }
-    
+
 }
-//    private String randomString(String alphabet,int len)
-//    {
-//         Random rnd = new Random();
-//
-//           StringBuilder sb = new StringBuilder( len );
-//           for( int i = 0; i < len; i++ ) 
-//              sb.append( alphabet.charAt( rnd.nextInt(alphabet.length())));
-//           String s= sb.toString();
-//           return s;
-//    }
+
 
 

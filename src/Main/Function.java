@@ -45,7 +45,7 @@ public class Function {
         }
         //ELSE IF  DIST > VARIABLES RANGE --> SET TO WORST FITNESS
         
-        double fitness=100/dist ;//DO SEMETHING ELSE LIKE RANKING STUFF
+        double fitness=dist ;//DO SEMETHING ELSE LIKE RANKING STUFF
         //System.out.println("F("+x+" , "+y+")= "+z);
        // System.out.println("Dist("+x+" , "+y+" , "+z+")= "+dist);
         return fitness;
