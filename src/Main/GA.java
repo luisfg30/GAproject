@@ -76,7 +76,7 @@ public class GA {
     public Population evolve(Population pop)
     {     
         
-                System.out.println("ELITE: "+eliteIndividual.getId()+" "+eliteIndividual.getGenesString()+ " fit: "+eliteIndividual.getFitness());
+//             System.out.println("ELITE: "+eliteIndividual.getId()+" "+eliteIndividual.getGenesString()+ " fit: "+eliteIndividual.getFitness());
              switch(geneticOperator)
              {
                  case 0:
@@ -251,26 +251,26 @@ public class GA {
      */
     public Population overwriteOperation(Population population)
     {
-        System.out.print("\nORIGINAL POP\n"+population.printInfo(1));
+//        System.out.print("\nORIGINAL POP\n"+population.printInfo(1));
         
         Integer aux[]=randomNoRepeat(popSize);
         
         int max=operatorRate*popSize/100;
         Individual selected[]= new Individual[max];
         int selectedIndexes[]= new int[max];
-        System.out.println("aux: "+Arrays.toString(aux));
+//        System.out.println("aux: "+Arrays.toString(aux));
         for(int i=0;i<max;i++)
         {
             selectedIndexes[i]=aux[i];
             int n = rand.nextInt(popSize);
-            System.out.println("\tIndex: "+selectedIndexes[i]+"("+population.getIndividual(selectedIndexes[i]).getId()
-            +") n: "+n+"("+population.getIndividual(n).getId()+")");
+//            System.out.println("\tIndex: "+selectedIndexes[i]+"("+population.getIndividual(selectedIndexes[i]).getId()
+//            +") n: "+n+"("+population.getIndividual(n).getId()+")");
             while(n==selectedIndexes[i])//avoid overwrite with itself
             {
-                System.out.println("repeated");
+//                System.out.println("repeated");
                 n=aux[popSize-1-i];
-                System.out.println("\tIndex: "+selectedIndexes[i]+"("+population.getIndividual(selectedIndexes[i]).getId()
-                        +") n: "+n+"("+population.getIndividual(n).getId()+")");
+//                System.out.println("\tIndex: "+selectedIndexes[i]+"("+population.getIndividual(selectedIndexes[i]).getId()
+//                        +") n: "+n+"("+population.getIndividual(n).getId()+")");
             }
             Individual a= new Individual(population.getIndividual(selectedIndexes[i]));
             Individual b= new Individual(population.getIndividual(n));
@@ -278,14 +278,14 @@ public class GA {
             selected[i]=overwrite(a,b);
         }
      
-        System.out.println("\n Winers from overwrite:");
-        for(int i=0; i< selected.length;i++)
-        {
-            System.out.println("\n["+selected[i].getId()+"] "+selected[i].getGenesString()+"Fitness: UNKNOW");
-        }
+//        System.out.println("\n Winers from overwrite:");
+//        for(int i=0; i< selected.length;i++)
+//        {
+//            System.out.println("\n["+selected[i].getId()+"] "+selected[i].getGenesString()+"Fitness: UNKNOW");
+//        }
                
         Population newPop= new Population(popSize);
-                System.out.println("aux: "+Arrays.toString(aux));
+//        System.out.println("aux: "+Arrays.toString(aux));
                 
             
         for(int i=0;i<popSize;i++)
@@ -307,7 +307,7 @@ public class GA {
             newPop.setIndividual(ind, index);
         }
 //        System.out.println("ELITE AFTER OVER "+eliteIndividual.getId()+" "+eliteIndividual.getGenesString()+ " fit: "+eliteIndividual.getFitness());
-         System.out.print("\nNEW POP\n"+newPop.printInfo(1));
+//         System.out.print("\nNEW POP\n"+newPop.printInfo(1));
         
          return newPop;
     }
@@ -348,8 +348,8 @@ public class GA {
         int number=(int) (max*small.getFitness()/(small.getFitness()+big.getFitness()));
 
         
-        System.out.println("\n\t\t"+small.getGenesString()+" small: ["+small.getId()+"]"+" fitness: "+small.getFitness());
-        System.out.println("\t\t"+big.getGenesString()+" big: ["+big.getId()+"] "+" fitness: "+big.getFitness());
+//        System.out.println("\n\t\t"+small.getGenesString()+" small: ["+small.getId()+"]"+" fitness: "+small.getFitness());
+//        System.out.println("\t\t"+big.getGenesString()+" big: ["+big.getId()+"] "+" fitness: "+big.getFitness());
         
         selectedIndex= new int[number];
         Individual result= new Individual(geneLength);
@@ -372,11 +372,11 @@ public class GA {
                 result.setGene(selectedIndex[i],small.getGene(selectedIndex[i]));
         }      
         result.setId(Population.randomString("abcedfghijklmnopqrstuvwxyz",3)+"BIG");
-        System.out.println("\t\t"+Arrays.toString(selectedIndex)+" Selected Indexes");
-        System.out.println("\t\t"+Arrays.toString(equalCounter)+" Equal Counter");  
-        System.out.println("\t\t"+small.getGenesString()+" small: ["+small.getId()+"]");
-        System.out.println("\t\t"+big.getGenesString()+" big: ["+big.getId()+"] ");
-        System.out.println("\t\t"+result.getGenesString()+" result: ["+result.getId()+"] ");
+//        System.out.println("\t\t"+Arrays.toString(selectedIndex)+" Selected Indexes");
+//        System.out.println("\t\t"+Arrays.toString(equalCounter)+" Equal Counter");  
+//        System.out.println("\t\t"+small.getGenesString()+" small: ["+small.getId()+"]");
+//        System.out.println("\t\t"+big.getGenesString()+" big: ["+big.getId()+"] ");
+//        System.out.println("\t\t"+result.getGenesString()+" result: ["+result.getId()+"] ");
         return result;
     }
     

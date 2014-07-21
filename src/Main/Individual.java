@@ -8,7 +8,7 @@ public class Individual {
     private double fitness;
     private String id;
     
-    private GA myGA=GA.getInstance();
+    private GA myGA;
 
     /**
      * Create an Individual with a random gene string, and fitness=0
@@ -31,6 +31,7 @@ public class Individual {
      */
     public Individual(Individual ind)
     {
+        myGA=GA.getInstance();
         genes= new byte[myGA.getGeneLength()];
         System.arraycopy(ind.getGenes(), 0, genes, 0,myGA.getGeneLength());  
         fitness=ind.fitness;
