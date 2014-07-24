@@ -52,7 +52,7 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
     
     
     private GA myGA= GA.getInstance();
-//    private Stats myStats = Stats.getInstance();
+    private Stats myStats = Stats.getInstance();
     private Population initialPop;
     
     
@@ -208,7 +208,8 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
                          {
                             outputArea.append("["+initialPop.getIndividual(j).getId()+"] -- "+
                             initialPop.getIndividual(j).getGenesString()+" -- Fitness: "+
-                            df.format(initialPop.getIndividual(j).getFitness())+"\n");
+                            df.format(initialPop.getIndividual(j).getFitness())+
+                                 " --Total Fitness: "+myStats.getTotalFitness()+"\n");
                          }
                         
                     }
@@ -217,7 +218,8 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
                         initialPop = myGA.evolve(initialPop);  
                         
                         //PRINT INFORMATION
-                         outputArea.append("\nGENERATION: "+totalGenerations+"\n");
+                         outputArea.append("\nGENERATION: "+totalGenerations+
+                                 " --Total Fitness: "+myStats.getTotalFitness()+"\n");
                          for(int j=0;j<myGA.getPopSize();j++)
                          {
                             outputArea.append("["+initialPop.getIndividual(j).getId()+"] -- "+
