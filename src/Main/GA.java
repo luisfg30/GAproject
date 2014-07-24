@@ -38,11 +38,13 @@ public class GA {
     private Variable[] vars;
     private Variable x,y;
     public Individual eliteIndividual;
+    private Stats myStats;
     private Function evaluatorFunction= Function.getInstance();
     private Random rand;
     
     private GA()
     {
+        myStats=Stats.getInstance();
          rand= new Random();
          x= new Variable(-3, (float) 12.1,4);
          y= new Variable((float)4.1, (float) 5.8,4);
@@ -75,29 +77,32 @@ public class GA {
     
     public Population evolve(Population pop)
     {     
-        
+        Population selected;
 //             System.out.println("ELITE: "+eliteIndividual.getId()+" "+eliteIndividual.getGenesString()+ " fit: "+eliteIndividual.getFitness());
              switch(geneticOperator)
              {
                  case 0:
                      //Lamarck
-                     System.out.println("Lamarck");
+//                     System.out.println("Lamarck");
                      pop=overwriteOperation(pop);
                  break;
 
                  case 1:
                      //Classic GA
-                     System.out.print("Classic GA ");
+//                     System.out.print("Classic GA ");
                      switch(selectionMethod)
                      {
                          case 0:
                               //tournament
-                             System.out.println("Tournament");
+//                             System.out.println("Tournament");
+                             pop=crossOverOperation(pop);//selection goes inside crossOverOperation
                          break;
 
                          case 1:
                              // roullete wheel
-                             System.out.println("Roullete");
+//                             System.out.println("Roullete");
+                                selected=this.roulleteWheelSelection(pop);
+                                pop=crossOverOperation(selected);
                          break;    
                      }
                  break;    
@@ -105,13 +110,9 @@ public class GA {
 
              if(useMutation==true)
              {
-                    System.out.println("Mutation");
+//                    System.out.println("Mutation");
                     this.mutation(pop);
              }
-             else
-             {
-                  System.out.println("No mutation");
-             } 
         //return a population
          evaluate(pop);
         return pop;
@@ -121,8 +122,9 @@ public class GA {
     
     public void evaluate(Population population)
     {
-        System.out.println("Evaluation");
+//        System.out.println("Evaluation");
         this.upDateVariables();
+        double total=0;
         for(int i=0;i<popSize;i++)
         {
             String sX,sY;
@@ -134,7 +136,9 @@ public class GA {
             y= vars[0].calcRealValue(sY);
             
             population.getIndividual(i).setFitness(evaluatorFunction.calcFitness(x, y));
+            total+=population.getIndividual(i).getFitness();
         }
+            myStats.setTotalFitness(total);
         if(population.getFittest().getFitness()>eliteIndividual.getFitness())
         {
             eliteIndividual=new Individual(population.getFittest());
@@ -145,7 +149,7 @@ public class GA {
      * @param population population to realize the tournament
      * @return get the best individual from the set 
      */
-    public Individual tournamentSelection(Population population)
+    public Individual tournament(Population population)
     {
         //get a set of individuals from the population, no repeat
         Population auxPop= new Population(tournamentSize);
@@ -154,9 +158,49 @@ public class GA {
         {  
             auxPop.setIndividual(population.getIndividual(indexes[i]), i);
         }
+        System.out.println(" tournament:"+auxPop.getFittest().getId());
         //choose the best from the auxPop
         return auxPop.getFittest();
     }
+    
+    public Population roulleteWheelSelection(Population pop)
+    {
+//        System.out.println("\n PORIGINAL POP\n"+pop.printInfo(1));
+        
+        Population newPop= new Population(popSize);
+        double probs[]= new double[popSize];
+        double cumulative[]=new double[popSize];
+        for(int i=0;i<popSize;i++)
+        {
+            probs[i]=pop.getIndividual(i).getFitness()/myStats.getTotalFitness();
+            if(i==0)
+            {
+                cumulative[i]=probs[i];
+            }
+            else
+            {
+                cumulative[i]=probs[i]+cumulative[i-1];
+            }
+        }
+        double number;
+        for(int i=0;i<popSize;i++)
+        {
+            number=rand.nextDouble();
+            for(int j=0;j<popSize;j++)
+            {
+                if(number<cumulative[j])
+                {
+                    Individual ind=new Individual(pop.getIndividual(j));
+                    newPop.setIndividual(ind, i);
+                    break;
+                }
+            }
+        }
+//        System.out.println("\n AFTER ROULLETE\n"+newPop.printInfo(1));
+//        newPop.printInfo(popSize);
+        return newPop;
+    }
+    
     /**
      * Return an array of size elements in a random order with no repeating elements
      * @param size define the array size and the maximum value (size-1).<br>
@@ -301,8 +345,17 @@ public class GA {
 //            System.out.println("\n "+aux[i]+" ["+newPop.getIndividual(i).getId()+"] "+newPop.getIndividual(i).getGenesString()+"Fitness: "+newPop.getIndividual(i).getFitness());
         }
         if(useElite==true)
-        {
-            int index= randomRange(max,popSize-1);
+        {   
+            int index;
+            if(max<popSize-1)
+            {
+               index = randomRange(max,popSize-1);
+            }
+            else
+            {
+                index=popSize-1;
+            }
+            
             Individual ind=new Individual(eliteIndividual);
             newPop.setIndividual(ind, index);
         }
@@ -380,6 +433,47 @@ public class GA {
         return result;
     }
     
+    public Population crossOverOperation(Population pop)
+    {
+//       System.out.println("\nORIGINAL POP\n"+pop.printInfo(1));
+        Integer indexes[]= randomNoRepeat(popSize);
+        int max=operatorRate*popSize/100;
+        if(max%2!=0)
+            max++;
+//       System.out.println("max: "+max+"selected indexes"+Arrays.toString(indexes));
+       for(int i=0;i<max;i=i+2)
+       {
+           if(selectionMethod==0)//use tournament
+           {
+               crossOver(tournament(pop),tournament(pop));
+           }
+           else
+           {
+               // System.out.println("a: "+pop.getIndividual(indexes[i]).getId()+" b: "+pop.getIndividual(indexes[i+1]).getId());
+                    crossOver(pop.getIndividual(indexes[i]),pop.getIndividual(indexes[i+1]));
+           }
+       }
+       evaluate(pop);
+//       System.out.println("\n AFTER CROSSOVER\n"+pop.printInfo(1));
+        return pop;
+    }
+    
+    private void crossOver(Individual a, Individual b)
+    {
+//        System.out.println("\t"+Arrays.toString(a.getGenes())+"a before geneLen: "+geneLength);
+//        System.out.println("\t"+Arrays.toString(b.getGenes())+"b before");
+        int crossPoint= randomRange(1,geneLength-1);
+        byte aux[]= new byte[geneLength-crossPoint];
+         
+        System.arraycopy(a.getGenes(),crossPoint, aux, 0, aux.length);
+        System.arraycopy(b.getGenes(), crossPoint, a.getGenes(), crossPoint, geneLength-crossPoint);
+        System.arraycopy(aux, 0, b.getGenes(), crossPoint, geneLength-crossPoint);
+        
+//        System.out.println("\t"+Arrays.toString(aux)+"aux crossPoint: "+crossPoint+"aux len "+aux.length);
+//        System.out.println("\t"+Arrays.toString(a.getGenes())+"a after");
+//        System.out.println("\t"+Arrays.toString(b.getGenes())+"b after");
+    }   
+         
 
 
     //USER INPUT METHODS

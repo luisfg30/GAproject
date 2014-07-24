@@ -52,7 +52,7 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
     
     
     private GA myGA= GA.getInstance();
-    private Stats myStats = Stats.getInstance();
+//    private Stats myStats = Stats.getInstance();
     private Population initialPop;
     
     
@@ -174,9 +174,13 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
                defaultPop=10;
                popSizeField.setValue(defaultPop);
            }
-           myGA.setPopSize(defaultPop);
-           initialPop= new Population(defaultPop);
-           initialPop.startIndividuals();
+           myGA.setPopSize(defaultPop);    
+           if(continuE==false)
+           {
+                 initialPop= new Population(defaultPop);
+                 initialPop.startIndividuals(); 
+           }
+
        }
     }
     
@@ -189,14 +193,13 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
              {
                   JButton clickedButton=(JButton)(ae.getSource());
                  if(clickedButton==start)
-                 {                   
+                 {   
                     int loop = Integer.parseInt(genNumberField.getText());      
-                    outputArea.setText("");
                     start.setEnabled(false);
                     if(continuE==false)//first time the program runs
                     {
-                        initialPop=new Population(myGA.getPopSize());
-                        initialPop.startIndividuals();
+//                        initialPop=new Population(myGA.getPopSize());
+//                        initialPop.startIndividuals();
                         myGA.evaluate(initialPop);
                         myGA.eliteIndividual=initialPop.getFittest();
                          //PRINT INFORMATION
@@ -224,10 +227,11 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
    
                         totalGenerations++;
                      }
+                    continuE=true;
                          start.setText("CONTINUE");
                          start.setEnabled(true);
                          popSizeField.setEnabled(false);
-                    continuE=true;
+                    
                  }
                  else if (clickedButton==stop)
                  {

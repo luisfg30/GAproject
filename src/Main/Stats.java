@@ -14,7 +14,7 @@ public class Stats {
     //SINGLETON PATTERN
     private static Stats singleton=null;
     
-    private GA myGA= GA.getInstance();
+//    private GA myGA= GA.getInstance();
     // EACH STEP VALUES
      private double totalFitness, avgFitness;
     
@@ -34,19 +34,20 @@ public class Stats {
         return singleton;
     }
     
-    public double calcAvgFitness(Population population)
-    {
-        double avg=0,sum=0;
-        int max= population.getPopulation().length;
-        for(int i=0;i<max;i++)
-        {
-            sum+=population.getIndividual(i).getFitness();
-        }
-        avg=sum/max;
-        totalFitness=sum;
-        avgFitness=avg;
-        return avg;
-    }
+//    public double calcAvgFitness(Population population)
+//    {
+//        double avg=0,sum=0;
+//        int max= population.getPopulation().length;
+//        for(int i=0;i<max;i++)
+//        {
+//            sum+=population.getIndividual(i).getFitness();
+//        }
+//        avg=sum/max;
+//        totalFitness=sum;
+//        avgFitness=avg;
+//        return avg;
+//    }
     
     public double getTotalFitness(){return totalFitness;}
+    public void setTotalFitness(double f){totalFitness=f;}
 }
