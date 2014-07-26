@@ -15,12 +15,15 @@ import java.util.Random;
 public class Population {
     
     private Individual [] individuals;
+    private double avgFitness,totalFitness;
+    private Individual fittest;
     
     private GA myGA= GA.getInstance();
     
     public Population(int size)
     {
         individuals= new Individual[size];
+        fittest=new Individual(0);
     }
     /**
      * Fill the population with random individuals
@@ -58,10 +61,9 @@ public class Population {
         return s;
     }
     
-    public Individual getFittest()
+    public Individual calcFittest()
     {
         int size=individuals.length;
-        Individual fittest= new Individual(0);
         for(int i=0;i<size;i++)
         {
             if(individuals[i].getFitness()>fittest.getFitness())
@@ -69,6 +71,7 @@ public class Population {
         }
         return fittest;
     }
+    public Individual getFittest(){return fittest;}
     /**
      * Returns a random string made from alphabet, with len characters.
      * Ex:s=randomstring("abc",5);--> s= cbaacb.
@@ -89,7 +92,10 @@ public class Population {
     }
     
     public void setIndividual(Individual ind,int index){individuals[index]=ind;}
-  
+    public void setAvgFitness(double f){avgFitness=f;}
+    public void setTotalFitness(double f){totalFitness=f;}
+    public double getTotalFitness(){return totalFitness;}
+    public double getAvgFitness(){return avgFitness;}
     public Individual[] getPopulation(){return individuals;}
     public Individual getIndividual(int index){return individuals[index];}
 }

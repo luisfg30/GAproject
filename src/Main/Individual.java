@@ -33,7 +33,7 @@ public class Individual {
     {
         myGA=GA.getInstance();
         genes= new byte[myGA.getGeneLength()];
-        System.arraycopy(ind.getGenes(), 0, genes, 0,myGA.getGeneLength());  
+        System.arraycopy(ind.getGenes(), 0, genes, 0,ind.getGenes().length);  
         fitness=ind.fitness;
         id=ind.id;  
     }

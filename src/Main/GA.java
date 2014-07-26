@@ -51,7 +51,13 @@ public class GA {
          vars = new Variable[maxVars];
          vars[0]=x;
          vars[1]=y;
-         upDateVariables();    
+         upDateVariables();
+//         System.out.println("\nTESTS DECODING\n");
+//         Individual ind= new Individual(this.geneLength);
+//         byte s[]={0,1,0,0,0,1,0,0,1,0,1,1,0,1,0,0,0,0,1,1,1,1,1,0,0,1,0,1,0,0,0,1,0};
+//         ind.setGeneString(s);
+//         double values[]=this.decodeIndividualGenes(ind);
+//         System.out.println("IND: "+ind.getGenesString()+"values:\n"+Arrays.toString(values));
          eliteIndividual= new Individual(0);
     }
     
@@ -127,22 +133,48 @@ public class GA {
         double total=0;
         for(int i=0;i<popSize;i++)
         {
-            String sX,sY;
-            double x,y;
-            
-            sX=population.getIndividual(i).getGenesString().substring(0, vars[0].getBitSize());
-            sY=population.getIndividual(i).getGenesString().substring(vars[0].getBitSize());
-            x= vars[0].calcRealValue(sX);
-            y= vars[0].calcRealValue(sY);
-            
-            population.getIndividual(i).setFitness(evaluatorFunction.calcFitness(x, y));
+            double realValues[];
+            realValues=this.decodeIndividualGenes(population.getIndividual(i));
+            population.getIndividual(i).setFitness(evaluatorFunction.calcFitness(realValues[0], realValues[1]));
+//             System.out.println(population.getIndividual(i).getId()+" real Values: "+Arrays.toString(realValues)+
+//                     " Fitness: "+population.getIndividual(i).getFitness());
             total+=population.getIndividual(i).getFitness();
         }
-            myStats.setTotalFitness(total);
+        population.setTotalFitness(total);
+        population.setAvgFitness(total/popSize);
+        population.calcFittest();
         if(population.getFittest().getFitness()>eliteIndividual.getFitness())
         {
             eliteIndividual=new Individual(population.getFittest());
+        }        
+    }
+    
+    public double[] decodeIndividualGenes(Individual ind)
+    {
+        double values[]=new double[this.maxVars];
+        String aux;
+        for(int i=0;i<this.maxVars;i++)
+        {
+            if(i==0)//first var
+            {
+                aux=ind.getGenesString().substring(0, vars[i].getBitSize());
+            }
+            else
+            {
+                if(i==this.maxVars-1)//last var
+                {
+                    aux=ind.getGenesString().substring(vars[i].getBitSize());
+                }
+                else
+                {
+                    aux=ind.getGenesString().substring(vars[i-1].getBitSize(), vars[i].getBitSize());
+                }
+            }
+         
+            values[i]=vars[i].calcRealValue(aux);
         }
+                  
+            return values;
     }
     /**
      * Randomly pick a set of "tournamentSize" individuals from population,  no repeat. 
@@ -158,9 +190,8 @@ public class GA {
         {  
             auxPop.setIndividual(population.getIndividual(indexes[i]), i);
         }
-        System.out.println(" tournament:"+auxPop.getFittest().getId());
         //choose the best from the auxPop
-        return auxPop.getFittest();
+        return auxPop.calcFittest();
     }
     
     public Population roulleteWheelSelection(Population pop)
@@ -172,7 +203,7 @@ public class GA {
         double cumulative[]=new double[popSize];
         for(int i=0;i<popSize;i++)
         {
-            probs[i]=pop.getIndividual(i).getFitness()/myStats.getTotalFitness();
+            probs[i]=pop.getIndividual(i).getFitness()/pop.getTotalFitness();
             if(i==0)
             {
                 cumulative[i]=probs[i];
@@ -245,7 +276,7 @@ public class GA {
          for(int i=0;i<max;i++)
         {
             this.mutate(population.getIndividual(indexes[i]));
-            population.getIndividual(indexes[i]).setId("M"+Population.randomString("abcedfghijklmnopqrstuvwxyz", 3));
+            population.getIndividual(indexes[i]).setId(myStats.getGenerations()+Population.randomString("abcedfghijklmnopqrstuvwxyz", 3));
         }
     }
     /**
@@ -424,7 +455,7 @@ public class GA {
 
                 result.setGene(selectedIndex[i],small.getGene(selectedIndex[i]));
         }      
-        result.setId(Population.randomString("abcedfghijklmnopqrstuvwxyz",3)+"BIG");
+        result.setId(myStats.getGenerations()+Population.randomString("abcedfghijklmnopqrstuvwxyz",3));
 //        System.out.println("\t\t"+Arrays.toString(selectedIndex)+" Selected Indexes");
 //        System.out.println("\t\t"+Arrays.toString(equalCounter)+" Equal Counter");  
 //        System.out.println("\t\t"+small.getGenesString()+" small: ["+small.getId()+"]");
@@ -453,6 +484,13 @@ public class GA {
                     crossOver(pop.getIndividual(indexes[i]),pop.getIndividual(indexes[i+1]));
            }
        }
+       if(useElite==true)
+       {
+           int index=rand.nextInt(popSize);
+            Individual ind=new Individual(eliteIndividual);
+            pop.setIndividual(ind, index);
+       }
+           
        evaluate(pop);
 //       System.out.println("\n AFTER CROSSOVER\n"+pop.printInfo(1));
         return pop;
@@ -468,6 +506,8 @@ public class GA {
         System.arraycopy(a.getGenes(),crossPoint, aux, 0, aux.length);
         System.arraycopy(b.getGenes(), crossPoint, a.getGenes(), crossPoint, geneLength-crossPoint);
         System.arraycopy(aux, 0, b.getGenes(), crossPoint, geneLength-crossPoint);
+        a.setId(myStats.getGenerations()+Population.randomString("abcedfghijklmnopqrstuvwxyz", 3));
+        b.setId(myStats.getGenerations()+Population.randomString("abcedfghijklmnopqrstuvwxyz", 3));
         
 //        System.out.println("\t"+Arrays.toString(aux)+"aux crossPoint: "+crossPoint+"aux len "+aux.length);
 //        System.out.println("\t"+Arrays.toString(a.getGenes())+"a after");
@@ -489,6 +529,7 @@ public class GA {
     public Variable[] getVariables(){return vars;}   
     public Individual getEliteIndividual(){return eliteIndividual;}
     public int getPopSize(){return popSize;}
+    public boolean getEliteEnabled(){return useElite;}
     public int getGeneLength(){return geneLength;}
     
 }

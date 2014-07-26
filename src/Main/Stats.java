@@ -1,5 +1,8 @@
 package Main;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -16,7 +19,10 @@ public class Stats {
     
 //    private GA myGA= GA.getInstance();
     // EACH STEP VALUES
-     private double totalFitness, avgFitness;
+     
+     private int totalGenerations=0;
+     private ArrayList<Double> fitnessValues = new ArrayList();
+     private ArrayList<Double> bestFitnessValues= new ArrayList();
     
     //WHOLE PROCESS VALUES
     
@@ -34,20 +40,37 @@ public class Stats {
         return singleton;
     }
     
-//    public double calcAvgFitness(Population population)
-//    {
-//        double avg=0,sum=0;
-//        int max= population.getPopulation().length;
-//        for(int i=0;i<max;i++)
-//        {
-//            sum+=population.getIndividual(i).getFitness();
-//        }
-//        avg=sum/max;
-//        totalFitness=sum;
-//        avgFitness=avg;
-//        return avg;
-//    }
     
-    public double getTotalFitness(){return totalFitness;}
-    public void setTotalFitness(double f){totalFitness=f;}
+    public void updateFitnessValues(double fitness, double bestFitness)
+    {
+        fitnessValues.add(fitness);
+        bestFitnessValues.add(bestFitness);
+        totalGenerations++;
+    }
+    public void clearData(){
+        fitnessValues.clear();
+        bestFitnessValues.clear();
+        totalGenerations=0;
+    }
+    public void setGenerations(int g){totalGenerations=g;}
+    public int getGenerations(){return totalGenerations;}
+    public double[] getArrayFitness()
+    {
+        double array[]= new double[fitnessValues.size()];
+        for(int i=0;i<fitnessValues.size();i++)
+        {
+            array[i]=fitnessValues.get(i);
+        }
+        return array;
+    }
+    public double[]getArrayBestFitness()
+    {
+        double array[]= new double[bestFitnessValues.size()];
+        for(int i=0;i<bestFitnessValues.size();i++)
+        {
+            array[i]=bestFitnessValues.get(i);
+        }
+        return array;
+    }
+ 
 }

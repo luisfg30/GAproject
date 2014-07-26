@@ -7,6 +7,7 @@
 package GUI;
 
 import Main.GA;
+import Main.Individual;
 import Main.Population;
 import Main.Stats;
 import java.awt.BorderLayout;
@@ -42,13 +43,15 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
     private JPanel options;
     private JButton start,stop;
     private boolean continuE =false;
-    private JLabel genNumber,popSize,popOptions;
+    private JLabel genNumber,popSize,popOptions,eliteInd;
     Font titleFont = new Font("Serif", Font.BOLD, 18);
     private JFormattedTextField genNumberField,popSizeField;
     private OptionsL optionsListener;
-    private DecimalFormat df = new DecimalFormat("#000.0000");
+    private DecimalFormat df = new DecimalFormat("#000.0000000");
     private NumberFormat amountFormat;
     private  GeneticOperatorsPane goPane;
+    private Graph g;
+    private double eliteValues[];
     
     
     private GA myGA= GA.getInstance();
@@ -58,7 +61,7 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
     
 
     private int defaultPop=10,defaultGen=100;
-    private int totalGenerations=0;
+    
     
     
     public PopulationPane()
@@ -89,11 +92,20 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
        goPane= new GeneticOperatorsPane();
        goPane.setBounds(optionsBounds.x, optionsBounds.y, 300, 170);
        options.add(goPane);
+        
+       g= new Graph(700,350);
+       g.setLocation(300, optionsBounds.y+50);
+       this.add(g);
+       
+       eliteInd= new JLabel("Elite Individual:");
+       eliteInd.setBounds(300,optionsBounds.y+10, 700, 30);
+       eliteInd.setFont(titleFont);
+       this.add(eliteInd);
        
        //BUTTONS
        optionsListener= new OptionsL();
        start = new JButton("START"); 
-       start.setBounds(optionsBounds.x+10,optionsBounds.y+230,200,40);
+       start.setBounds(optionsBounds.x+10,optionsBounds.y+260,200,40);
        start.addActionListener(optionsListener);
        options.add(start);
        
@@ -104,8 +116,8 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
        stop.addActionListener(optionsListener);
        options.add(stop);
        
-       elite= new JCheckBox("Elite Individual");
-       elite.setBounds(startBounds.x+200, startBounds.y, 140, 30);
+       elite= new JCheckBox("Use Elite Individual");
+       elite.setBounds(startBounds.x, startBounds.y-70, 140, 30);
        elite.setBackground(options.getBackground());
        elite.setSelected(true);
        elite.addItemListener(new ItemListener() 
@@ -127,7 +139,7 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
        
         popOptions=new JLabel ("Population Options");
        popOptions.setFont(titleFont);
-       popOptions.setBounds(startBounds.x,startBounds.y-70, startBounds.width, 30);
+       popOptions.setBounds(startBounds.x,startBounds.y-100, startBounds.width, 30);
        options.add(popOptions);
        
        genNumber = new JLabel("Generations to run:");
@@ -179,12 +191,24 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
            {
                  initialPop= new Population(defaultPop);
                  initialPop.startIndividuals(); 
+                 myGA.evaluate(initialPop);
            }
 
        }
     }
     
     public void addOutputText(String s){outputArea.append(s);}
+    public void updateStats()
+    {
+     if(myGA.getEliteEnabled()==true)
+      {
+         myStats.updateFitnessValues(initialPop.getAvgFitness(),myGA.eliteIndividual.getFitness());
+      }
+      else
+      {
+        myStats.updateFitnessValues(initialPop.getAvgFitness(),initialPop.getFittest().getFitness()); 
+      }    
+    }
     
           private class OptionsL implements ActionListener
         {
@@ -198,50 +222,54 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
                     start.setEnabled(false);
                     if(continuE==false)//first time the program runs
                     {
-//                        initialPop=new Population(myGA.getPopSize());
-//                        initialPop.startIndividuals();
-                        myGA.evaluate(initialPop);
                         myGA.eliteIndividual=initialPop.getFittest();
                          //PRINT INFORMATION
-                         outputArea.append("\nINITIAL POPULATION: "+totalGenerations+"\n");
+                         outputArea.append("\nINITIAL POPULATION  --Avg Fitness: "+initialPop.getAvgFitness()+"\n");
                          for(int j=0;j<myGA.getPopSize();j++)
                          {
                             outputArea.append("["+initialPop.getIndividual(j).getId()+"] -- "+
                             initialPop.getIndividual(j).getGenesString()+" -- Fitness: "+
-                            df.format(initialPop.getIndividual(j).getFitness())+
-                                 " --Total Fitness: "+myStats.getTotalFitness()+"\n");
+                            df.format(initialPop.getIndividual(j).getFitness())+"\n");
+                            eliteValues= myGA.decodeIndividualGenes(myGA.eliteIndividual);
+                            eliteInd.setText("Elite Individual:  ["+myGA.eliteIndividual.getId()+"] X("+df.format(eliteValues[0])+
+                              ") Y(" +df.format(eliteValues[1])+")Fitness = "+df.format(myGA.eliteIndividual.getFitness()));     
                          }
-                        
+                         updateStats();
                     }
                     for (int i=0;i<loop;i++)
                     {
                         initialPop = myGA.evolve(initialPop);  
                         
                         //PRINT INFORMATION
-                         outputArea.append("\nGENERATION: "+totalGenerations+
-                                 " --Total Fitness: "+myStats.getTotalFitness()+"\n");
+                         outputArea.append("\nGENERATION: "+myStats.getGenerations()+
+                                 " --Avg Fitness: "+initialPop.getAvgFitness()+"\n");
                          for(int j=0;j<myGA.getPopSize();j++)
                          {
                             outputArea.append("["+initialPop.getIndividual(j).getId()+"] -- "+
                             initialPop.getIndividual(j).getGenesString()+" -- Fitness: "+
                             df.format(initialPop.getIndividual(j).getFitness())+"\n");
+                            eliteValues= myGA.decodeIndividualGenes(myGA.eliteIndividual);
+                            eliteInd.setText("Elite Individual:  ["+myGA.eliteIndividual.getId()+"] X("+df.format(eliteValues[0])+
+                              ") Y(" +df.format(eliteValues[1])+")Fitness = "+df.format(myGA.eliteIndividual.getFitness()));     
                          }
-   
-                        totalGenerations++;
+                         updateStats();
                      }
                     continuE=true;
                          start.setText("CONTINUE");
                          start.setEnabled(true);
                          popSizeField.setEnabled(false);
-                    
+//                    System.out.println("ARRAY"+Arrays.toString(myStats.getArrayFitness()));
+                         g.addData(myStats.getArrayFitness());
+                         g.repaint();
                  }
                  else if (clickedButton==stop)
                  {
                      outputArea.setText("");
                      continuE=false;
-                     totalGenerations=0;
+                     myStats.clearData();
                      start.setText("START");
                      popSizeField.setEnabled(true);
+                     myGA.eliteIndividual=new Individual(myGA.getGeneLength());
                  }
              }
 

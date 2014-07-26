@@ -37,7 +37,7 @@ import javax.swing.*;
      
         this.setTitle("TITLE");
         this.setContentPane(tabs);
-        this.setSize(new Dimension(800,600));
+        this.setSize(new Dimension(1024,700));
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
