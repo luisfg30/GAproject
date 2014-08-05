@@ -23,6 +23,7 @@ public class Stats {
      private int totalGenerations=0;
      private ArrayList<Double> fitnessValues = new ArrayList();
      private ArrayList<Double> bestFitnessValues= new ArrayList();
+     private ArrayList<Double> zValues = new ArrayList();
     
     //WHOLE PROCESS VALUES
     
@@ -40,6 +41,10 @@ public class Stats {
         return singleton;
     }
     
+    public void addZValue(double v)
+    {
+        zValues.add(v);
+    }
     
     public void updateFitnessValues(double fitness, double bestFitness)
     {
@@ -50,6 +55,7 @@ public class Stats {
     public void clearData(){
         fitnessValues.clear();
         bestFitnessValues.clear();
+        zValues.clear();
         totalGenerations=0;
     }
     public void setGenerations(int g){totalGenerations=g;}
@@ -69,6 +75,16 @@ public class Stats {
         for(int i=0;i<bestFitnessValues.size();i++)
         {
             array[i]=bestFitnessValues.get(i);
+        }
+        return array;
+    }
+    
+    public double[]getArrayZValues()
+    {
+        double array[]= new double[zValues.size()];
+        for(int i=0;i<zValues.size();i++)
+        {
+            array[i]=zValues.get(i);
         }
         return array;
     }

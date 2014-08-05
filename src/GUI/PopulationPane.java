@@ -39,10 +39,10 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
     //GUI ATRIBUTES
     private JScrollPane scrollOutput;
     private JTextArea outputArea;
-    private JCheckBox elite;
+    private JCheckBox elite,print;
     private JPanel options;
     private JButton start,stop;
-    private boolean continuE =false;
+    private boolean continuE =false,printInfo=true; 
     private JLabel genNumber,popSize,popOptions,eliteInd;
     Font titleFont = new Font("Serif", Font.BOLD, 18);
     private JFormattedTextField genNumberField,popSizeField;
@@ -115,6 +115,26 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
        stop.setBounds(startBounds.x,startBounds.y+40, 200, 40);
        stop.addActionListener(optionsListener);
        options.add(stop);
+       
+       print= new JCheckBox("Print individual informations");
+       print.setBounds(startBounds.x, startBounds.y+90, 200, 40);
+       print.setBackground(options.getBackground());
+       print.setSelected(true);
+       print.addItemListener(new ItemListener() 
+        {
+            @Override
+            public void itemStateChanged(ItemEvent ie) {
+                if(ie.getStateChange()==ItemEvent.DESELECTED)
+                {
+                    printInfo=false;
+                }
+                else
+                {
+                    printInfo=true;
+                }
+            }
+        });
+       options.add(print);
        
        elite= new JCheckBox("Use Elite Individual");
        elite.setBounds(startBounds.x, startBounds.y-70, 140, 30);
@@ -223,16 +243,18 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
                     if(continuE==false)//first time the program runs
                     {
                         myGA.eliteIndividual=initialPop.getFittest();
-                         //PRINT INFORMATION
-                         outputArea.append("\nINITIAL POPULATION  --Avg Fitness: "+initialPop.getAvgFitness()+"\n");
-                         for(int j=0;j<myGA.getPopSize();j++)
+                         if(printInfo==true)
                          {
-                            outputArea.append("["+initialPop.getIndividual(j).getId()+"] -- "+
-                            initialPop.getIndividual(j).getGenesString()+" -- Fitness: "+
-                            df.format(initialPop.getIndividual(j).getFitness())+"\n");
-                            eliteValues= myGA.decodeIndividualGenes(myGA.eliteIndividual);
-                            eliteInd.setText("Elite Individual:  ["+myGA.eliteIndividual.getId()+"] X("+df.format(eliteValues[0])+
-                              ") Y(" +df.format(eliteValues[1])+")Fitness = "+df.format(myGA.eliteIndividual.getFitness()));     
+                                outputArea.append("\nINITIAL POPULATION  --Avg Fitness: "+initialPop.getAvgFitness()+"\n");
+                                for(int j=0;j<myGA.getPopSize();j++)
+                                {
+                                   outputArea.append("["+initialPop.getIndividual(j).getId()+"] -- "+
+                                   initialPop.getIndividual(j).getGenesString()+" -- Fitness: "+
+                                   df.format(initialPop.getIndividual(j).getFitness())+"\n");
+                                   eliteValues= myGA.decodeIndividualGenes(myGA.eliteIndividual);
+                                   eliteInd.setText("Elite Individual:  ["+myGA.eliteIndividual.getId()+"] X("+df.format(eliteValues[0])+
+                                     ") Y(" +df.format(eliteValues[1])+")Fitness = "+df.format(myGA.eliteIndividual.getFitness()));     
+                                }
                          }
                          updateStats();
                     }
@@ -240,18 +262,20 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
                     {
                         initialPop = myGA.evolve(initialPop);  
                         
-                        //PRINT INFORMATION
-                         outputArea.append("\nGENERATION: "+myStats.getGenerations()+
-                                 " --Avg Fitness: "+initialPop.getAvgFitness()+"\n");
-                         for(int j=0;j<myGA.getPopSize();j++)
-                         {
-                            outputArea.append("["+initialPop.getIndividual(j).getId()+"] -- "+
-                            initialPop.getIndividual(j).getGenesString()+" -- Fitness: "+
-                            df.format(initialPop.getIndividual(j).getFitness())+"\n");
-                            eliteValues= myGA.decodeIndividualGenes(myGA.eliteIndividual);
-                            eliteInd.setText("Elite Individual:  ["+myGA.eliteIndividual.getId()+"] X("+df.format(eliteValues[0])+
-                              ") Y(" +df.format(eliteValues[1])+")Fitness = "+df.format(myGA.eliteIndividual.getFitness()));     
-                         }
+                        if(printInfo==true)
+                        {
+                                outputArea.append("\nGENERATION: "+myStats.getGenerations()+
+                                  " --Avg Fitness: "+initialPop.getAvgFitness()+"\n");
+                                for(int j=0;j<myGA.getPopSize();j++)
+                                {
+                                   outputArea.append("["+initialPop.getIndividual(j).getId()+"] -- "+
+                                   initialPop.getIndividual(j).getGenesString()+" -- Fitness: "+
+                                   df.format(initialPop.getIndividual(j).getFitness())+"\n");
+                                   eliteValues= myGA.decodeIndividualGenes(myGA.eliteIndividual);
+                                   eliteInd.setText("Elite Individual:  ["+myGA.eliteIndividual.getId()+"] X("+df.format(eliteValues[0])+
+                                     ") Y(" +df.format(eliteValues[1])+")Fitness = "+df.format(myGA.eliteIndividual.getFitness()));     
+                                }
+                        }
                          updateStats();
                      }
                     continuE=true;

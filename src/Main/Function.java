@@ -52,9 +52,9 @@ public class Function {
     }
     
     //CHOOSE THE SPECIFIC EXPRESSIONS FOR EACH FUNCTION
-    private double calcValue(double x, double y)
+    public double calcValue(double x, double y)
     {
-        double z;
+        double z=999;
         //switch usin fNumber case to calculate Z
         switch(fNumber)
         {
@@ -67,9 +67,10 @@ public class Function {
                 z=(-20)*Math.exp(a)-Math.exp(b)+20+Math.E; 
                 break;
             
-            default: 
-                z=0;
-                break;
+            case 1:
+                //OHTER FUNCTIONS
+            break;
+                
         }
         return z;
     }

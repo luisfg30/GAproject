@@ -18,11 +18,11 @@ import javax.swing.*;
     private JTabbedPane tabs;
 
 
-    public GAFrame()
+    public GAFrame(VariablesPane v)
     {
        //CREATE AND SET COMPONENTS
         tabs= new JTabbedPane();
-        VariablesPane v= new VariablesPane();
+        
         PopulationPane p= new PopulationPane();
         //GeneticOperatorsPane go= new GeneticOperatorsPane();
 
@@ -35,7 +35,7 @@ import javax.swing.*;
 
         //SET UP FRAME
      
-        this.setTitle("TITLE");
+        this.setTitle("GA test program");
         this.setContentPane(tabs);
         this.setSize(new Dimension(1024,700));
         this.setVisible(true);

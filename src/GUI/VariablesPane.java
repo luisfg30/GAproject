@@ -11,6 +11,9 @@ import Main.GA;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
@@ -32,20 +35,25 @@ public class VariablesPane extends JPanel implements PropertyChangeListener{
     
     private GA myGA=GA.getInstance();
     private Function evalFunction= Function.getInstance();
+ 
 
     private JTextPane geneString;
-    private JLabel genLabel,varOptions,xLabel,yLabel,xMin,xMax,yMin,yMax,xp,yp,sizeLabel;
+    private JLabel genLabel,varOptions,xLabel,yLabel,xMin,xMax,yMin,yMax,xp,yp,sizeLabel,FBoxLabel;
     private JFormattedTextField xMinField,xMaxField,xpField,yMinField,yMaxField,ypField;
+    private FunctionImagesPane img,exp;
+    private JComboBox functionBox;
     private Font titleFont;
     private Style style;
     private StyledDocument doc;
+    BufferedImage plotImg[],expImg[];
     
     private NumberFormat amountFormat;
     private float x=-5,X=5,y=-5,Y=5;
     private int xC=4,yC=4;
-    public VariablesPane()
+    public VariablesPane(BufferedImage plot[],BufferedImage exp[])
     {
-        
+        plotImg=plot;
+        expImg=exp;
         evalFunction.setParameters(0, 0, 0);
         this.setLayout(null);
         this.setBackground(Color.GRAY);
@@ -158,11 +166,34 @@ public class VariablesPane extends JPanel implements PropertyChangeListener{
         genLabel.setBounds(stringBounds.x, stringBounds.y-30, stringBounds.width, 30);
         this.add(genLabel);
         
-        
         sizeLabel= new JLabel ("Gene String size: X("+myGA.getVariables()[0].getBitSize()+") + Y("
         +myGA.getVariables()[1].getBitSize()+") = "+myGA.getGeneLength());
         sizeLabel.setBounds(stringBounds.x,stringBounds.y+50,stringBounds.width,30);
         this.add(sizeLabel);
+        
+        FBoxLabel= new JLabel("Evaluation Function");
+        FBoxLabel.setFont(titleFont);
+        FBoxLabel.setBounds(stringBounds.x, stringBounds.y+90, stringBounds.width, 30);
+        this.add(FBoxLabel);
+        
+        String[] list = {"Ackley"};
+        functionBox= new JComboBox(list);
+        functionBox.setBounds(stringBounds.x,stringBounds.y+120, stringBounds.width, 30);
+        functionBox.setSelectedIndex(0);
+        this.add(functionBox);
+        functionBox.addActionListener(new FunctionListener());
+        
+        img= new FunctionImagesPane();
+        img.setBounds(350, 100, 650, 500);
+        this.add(img);
+        img.setImages(plotImg);
+        img.setCurrentImage(0);
+        
+        exp= new FunctionImagesPane();
+        exp.setBounds(350, 10, 650, 60);
+        this.add(exp);
+        exp.setImages(expImg);
+        exp.setCurrentImage(0);
     }
     
     public void setGeneStrinng()
@@ -233,6 +264,22 @@ public class VariablesPane extends JPanel implements PropertyChangeListener{
         +myGA.getVariables()[1].getBitSize()+") = "+myGA.getGeneLength());
         }
 
+    }
+    
+    private class FunctionListener implements ActionListener 
+    {
+        @Override
+        public void actionPerformed(ActionEvent ae) 
+        {
+            JComboBox activeBox = (JComboBox)ae.getSource();      
+            if(activeBox==functionBox)
+            {
+                evalFunction.setFunctionNumber(functionBox.getSelectedIndex());
+                img.setCurrentImage(functionBox.getSelectedIndex());
+                exp.setCurrentImage(functionBox.getSelectedIndex());
+            }
+        }
+        
     }
     
 }
