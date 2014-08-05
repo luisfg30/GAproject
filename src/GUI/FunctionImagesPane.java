@@ -43,41 +43,4 @@ public class FunctionImagesPane extends JPanel
         currentImage=imgs[index];
          repaint();
     }
-    
-    
-//    public void loadImages(String mainPath, int imgNumber)
-//    {
-//        images= new JLabel[imgNumber];
-//        String path;
-//        for(int i=0;i<imgNumber;i++)
-//        {
-//            if(i<10)
-//            {
-//                path=mainPath.concat("0").concat((String.valueOf(i))).concat(".jpg");
-//            }
-//            else
-//            {
-//                path=mainPath.concat((String.valueOf(i))).concat(".jpg");
-//            }
-//            System.out.println(path);
-//            images[i] = new JLabel();
-//            images[i].setIcon(new ImageIcon(getClass().getResource(path)));
-//            images[i].setBounds(0,0,this.getBounds().width,this.getBounds().height);
-//            this.add(images[i]);
-//        }
-//    }
-    
-//    public void setImage(int index)
-//    {
-//        hideImages();
-//        images[index].setVisible(true);
-//    }
-//    
-//    private void hideImages()
-//    {
-//        for(int i= images.length;i<images.length;i++)
-//        {
-//            images[i].setVisible(false);
-//        }
-//    }
 }
