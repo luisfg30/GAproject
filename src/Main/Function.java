@@ -15,9 +15,10 @@ public class Function {
     //SINGLETON PATTERN
     private static Function singleton=null;
     
-    private double MinX;
-    private double MinY;
-    private double MinZ;
+    public double MinX,MaxX,OptX;
+    public double MinY,MaxY,OptY;
+    public double MinZ,MaxZ,OptZ;
+    public boolean minimumProblem;
     
     private int fNumber=0; //chose one of the test funciotns from a list. 
     
@@ -38,13 +39,8 @@ public class Function {
     public double calcFitness(double x,double y)
     {
         double z=calcValue(x,y);
-        double dist=  Math.sqrt((Math.pow(x-MinX, 2))+((Math.pow(y-MinY, 2)))+((Math.pow(z-MinZ, 2))));
-        if(dist==0)
-        {
-            // SET TO MAXIMUM FITNESS --> PERFECT RESULT (BEST INDIVIDUAL)
-        }
-        //ELSE IF  DIST > VARIABLES RANGE --> SET TO WORST FITNESS
-        
+        double dist=  Math.sqrt((Math.pow(x-OptX, 2))+((Math.pow(y-OptY, 2)))+((Math.pow(z-OptZ, 2))));
+       
         double fitness=100/(1+dist) ;//when dist--> infinity fitness-->0. When dist-->0  fitness-->1
         //System.out.println("F("+x+" , "+y+")= "+z);
        // System.out.println("Dist("+x+" , "+y+" , "+z+")= "+dist);
@@ -74,16 +70,36 @@ public class Function {
         }
         return z;
     }
-    
-    public void setParameters(int x,int y,int fn)
+
+    public void setMinValues(float x, float y)
     {
         MinX=x;
         MinY=y;
         MinZ=calcValue(MinX,MinY);
-        //System.out.println("Min point: ("+MinX+" , "+MinY+" , "+MinZ+")");
-        fNumber=fn;
+//        System.out.println("Min point: ("+MinX+" , "+MinY+" , "+MinZ+")");
     }
-
-    public void setFunctionNumber(int s){fNumber=s;}
+    
+    public void setMaxValues(float X, float Y)
+    {
+        MaxX=X;
+        MaxY=Y;
+        MaxZ=calcValue(MaxX,MaxY);
+//        System.out.println("Max point: ("+MaxX+" , "+MaxY+" , "+MaxZ+")");
+    }
+    
+    public void setFunctionNumber(int s)
+    {
+        fNumber=s;
+        if(fNumber==0)//define the values for X and Y at the minimum value
+        {
+            this.setMinValues(0,0);
+            OptX=MinX;
+            OptY=MinY;
+            OptZ=MaxZ;
+            minimumProblem=true;
+        }
+    }
+    
+    
     
 }

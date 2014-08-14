@@ -54,7 +54,7 @@ public class VariablesPane extends JPanel implements PropertyChangeListener{
     {
         plotImg=plot;
         expImg=exp;
-        evalFunction.setParameters(0, 0, 0);
+        evalFunction.setFunctionNumber(0);
         this.setLayout(null);
         this.setBackground(Color.GRAY);
         titleFont = new Font("Serif", Font.BOLD, 18);
@@ -238,6 +238,8 @@ public class VariablesPane extends JPanel implements PropertyChangeListener{
             xC=((Number)xpField.getValue()).intValue();
 //         System.out.println("x: "+x+" X: "+X+"xC: "+xC);
              //VALIDATE
+            if(xC<0)
+                xC=0;
             
             myGA.getVariables()[0].setParameters(x,X, xC);
             setGeneStrinng();
@@ -251,10 +253,9 @@ public class VariablesPane extends JPanel implements PropertyChangeListener{
             Y=((Number)yMaxField.getValue()).floatValue();
             yC=((Number)ypField.getValue()).intValue();
              //VALIDATE       
-            if(yC<1)
-            {
-                
-            }
+            if(yC<0)
+                yC=0;
+
 //            System.out.println("y: "+y+" Y: "+Y+"yC: "+yC);
             myGA.getVariables()[1].setParameters(y,Y, yC);
             
@@ -264,6 +265,7 @@ public class VariablesPane extends JPanel implements PropertyChangeListener{
         +myGA.getVariables()[1].getBitSize()+") = "+myGA.getGeneLength());
         }
 
+            evalFunction.setMaxValues(X, Y);
     }
     
     private class FunctionListener implements ActionListener 

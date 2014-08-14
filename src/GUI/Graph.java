@@ -26,7 +26,7 @@ import javax.swing.JPanel;
      
      private final int margin=40;
      private int width,height;
-     private double dataAvg[],dataBest[];
+     private double dataAvg[],dataBest[],dataOpt[],dataEliteOpt[];
      private double scaleX,scaleY;
      private Point2D origin,xEnd,yEnd;
      Font numbers = new Font("Arial", Font.PLAIN, 10);
@@ -36,6 +36,8 @@ import javax.swing.JPanel;
      {
          dataAvg= new double[0];
          dataBest= new double[0];
+         dataOpt= new double[0];
+         dataEliteOpt=new double[0];
          width=w;
          height=h;
          this.setSize(width, height);
@@ -47,6 +49,8 @@ import javax.swing.JPanel;
      {
               dataAvg=myStats.getArrayFitness();
               dataBest=myStats.getArrayBestFitness();
+              dataOpt=myStats.getArrayAvgOptimality();
+              dataEliteOpt=myStats.getArrayEliteOptimality();
      }
      
     @Override
@@ -69,6 +73,10 @@ import javax.swing.JPanel;
       g2.drawString("Avg Fitness", (int)xEnd.getX()+5, (int)yEnd.getY()+30);
       g2.setColor(Color.green);
       g2.drawString("Best Fitness", (int)xEnd.getX()+5, (int)yEnd.getY()+70);
+      g2.setColor(Color.blue);
+      g2.drawString("Avg Optimality", (int)xEnd.getX()+5, (int)yEnd.getY()+110);
+      g2.setColor(Color.yellow);
+      g2.drawString("Elite Optimality", (int)xEnd.getX()+5, (int)yEnd.getY()+150);
       g2.setColor(Color.GRAY);
       g2.draw(xAxis);
       g2.draw(yAxis); 
@@ -76,6 +84,8 @@ import javax.swing.JPanel;
       this.drawGrid(g2, 1, 1,100);
       this.plotData(g2, Color.red, dataAvg);      
       this.plotData(g2, Color.green, dataBest);
+      this.plotData(g2, Color.blue, dataOpt);
+      this.plotData(g2, Color.yellow, dataEliteOpt);
     }  
     
     public void plotData(Graphics2D g2,Color c, double dataY[])

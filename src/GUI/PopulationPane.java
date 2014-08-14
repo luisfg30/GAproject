@@ -6,6 +6,7 @@
 
 package GUI;
 
+import Main.Function;
 import Main.GA;
 import Main.Individual;
 import Main.Population;
@@ -57,7 +58,7 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
     private GA myGA= GA.getInstance();
     private Stats myStats = Stats.getInstance();
     private Population initialPop;
-    
+    private Function myEvalFunction = Function.getInstance();
     
 
     private int defaultPop=10,defaultGen=100;
@@ -114,6 +115,7 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
        stop= new JButton("STOP-Create New Population");
        stop.setBounds(startBounds.x,startBounds.y+40, 200, 40);
        stop.addActionListener(optionsListener);
+       stop.setEnabled(false);
        options.add(stop);
        
        print= new JCheckBox("Print individual informations");
@@ -212,6 +214,11 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
                  initialPop= new Population(defaultPop);
                  initialPop.startIndividuals(); 
                  myGA.evaluate(initialPop);
+                                  myGA.firstRun=false;
+                 myGA.eliteIndividual= new Individual(initialPop.getFittest());
+                 eliteValues= myGA.decodeIndividualGenes(myGA.eliteIndividual);
+//                  eliteInd.setText("Elite Individual:  ["+myGA.eliteIndividual.getId()+"] X("+df.format(eliteValues[0])+
+//                     ") Y(" +df.format(eliteValues[1])+")Fitness = "+df.format(myGA.eliteIndividual.getFitness()));  
            }
 
        }
@@ -237,15 +244,18 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
              {
                   JButton clickedButton=(JButton)(ae.getSource());
                  if(clickedButton==start)
-                 {   
-                    int loop = Integer.parseInt(genNumberField.getText());      
+                 {
+                     stop.setEnabled(true);
+                     
+                    int loop = Integer.parseInt(genNumberField.getText());   
                     start.setEnabled(false);
                     if(continuE==false)//first time the program runs
                     {
                         myGA.eliteIndividual=initialPop.getFittest();
                          if(printInfo==true)
                          {
-                                outputArea.append("\nINITIAL POPULATION  --Avg Fitness: "+initialPop.getAvgFitness()+"\n");
+                                outputArea.append("\nINITIAL POPULATION  --Avg Fitness: "+initialPop.getAvgFitness()+"--Best Fitness: "+
+                                        myGA.eliteIndividual.getFitness()+"\n");
                                 for(int j=0;j<myGA.getPopSize();j++)
                                 {
                                    outputArea.append("["+initialPop.getIndividual(j).getId()+"] -- "+
@@ -265,7 +275,8 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
                         if(printInfo==true)
                         {
                                 outputArea.append("\nGENERATION: "+myStats.getGenerations()+
-                                  " --Avg Fitness: "+initialPop.getAvgFitness()+"\n");
+                                  " --Avg Fitness: "+initialPop.getAvgFitness()+"--Best Fitness: "+ 
+                                        myGA.eliteIndividual.getFitness()+"\n");
                                 for(int j=0;j<myGA.getPopSize();j++)
                                 {
                                    outputArea.append("["+initialPop.getIndividual(j).getId()+"] -- "+
@@ -276,7 +287,7 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
                                      ") Y(" +df.format(eliteValues[1])+")Fitness = "+df.format(myGA.eliteIndividual.getFitness()));     
                                 }
                         }
-                         updateStats();
+                         updateStats();   
                      }
                     continuE=true;
                          start.setText("CONTINUE");
@@ -288,12 +299,19 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
                  }
                  else if (clickedButton==stop)
                  {
+                     stop.setEnabled(false);
+                     
+                     //record the values of the best individual
+                           double realValues[]=new double[myGA.maxVars],zValue;
+                           realValues=myGA.decodeIndividualGenes(myGA.eliteIndividual);
+                           zValue=myEvalFunction.calcValue(realValues[0],realValues[1]);
+                           myStats.recordResults(realValues[0],realValues[1], zValue,myGA.eliteIndividual.getFitness());
+                           myStats.clearData();
+                     
                      outputArea.setText("");
                      continuE=false;
-                     myStats.clearData();
                      start.setText("START");
                      popSizeField.setEnabled(true);
-                     myGA.eliteIndividual=new Individual(myGA.getGeneLength());
                  }
              }
 

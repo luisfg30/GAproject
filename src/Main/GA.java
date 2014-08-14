@@ -22,7 +22,7 @@ public class GA {
     
     //ARBRITARY VALUES
     public final int maxLength= 50; // length of the individual`s genes
-    private final int maxVars= 2; //number of variables
+    public final int maxVars= 2; //number of variables
     
     
     //USER DEFINED VALUES
@@ -41,6 +41,7 @@ public class GA {
     private Stats myStats;
     private Function evaluatorFunction= Function.getInstance();
     private Random rand;
+    public boolean firstRun=true;
     
     private GA()
     {
@@ -128,25 +129,41 @@ public class GA {
     
     public void evaluate(Population population)
     {
-//        System.out.println("Evaluation");
+        System.out.println("evaluate");
         this.upDateVariables();
-        double total=0;
+        double total=0,zValue,totalOpt=0,eliteOpt;
+        double realValues[]=new double[this.maxVars];
         for(int i=0;i<popSize;i++)
         {
-            double realValues[];
             realValues=this.decodeIndividualGenes(population.getIndividual(i));
+            zValue=evaluatorFunction.calcValue(realValues[0], realValues[1]);
             population.getIndividual(i).setFitness(evaluatorFunction.calcFitness(realValues[0], realValues[1]));
 //             System.out.println(population.getIndividual(i).getId()+" real Values: "+Arrays.toString(realValues)+
 //                     " Fitness: "+population.getIndividual(i).getFitness());
+            if(firstRun==false)
+                 totalOpt+=myStats.calcOptimality(evaluatorFunction.OptZ,evaluatorFunction.MaxZ, evaluatorFunction.MinZ, zValue);
+            
             total+=population.getIndividual(i).getFitness();
         }
+        if(firstRun==false)
+            myStats.updateAvgValues(totalOpt/popSize);
+        
         population.setTotalFitness(total);
         population.setAvgFitness(total/popSize);
         population.calcFittest();
         if(population.getFittest().getFitness()>eliteIndividual.getFitness())
         {
             eliteIndividual=new Individual(population.getFittest());
-        }        
+        }     
+        
+            if(firstRun==false)
+            {
+                 //send optimality to stats
+                realValues=this.decodeIndividualGenes(eliteIndividual);
+                zValue=evaluatorFunction.calcValue(realValues[0], realValues[1]);
+                eliteOpt=myStats.calcOptimality(evaluatorFunction.OptZ,evaluatorFunction.MaxZ, evaluatorFunction.MinZ, zValue);
+                myStats.updateEliteOptimality(eliteOpt);
+            }
     }
     
     public double[] decodeIndividualGenes(Individual ind)
@@ -273,6 +290,9 @@ public class GA {
          //get a random individual from the original population, no repeat
         Integer indexes[]= randomNoRepeat(popSize);
         int max=mutationRate*popSize/100;
+        if(max<1)//at least 1 individual will be mutated
+            max=1;
+        
          for(int i=0;i<max;i++)
         {
             this.mutate(population.getIndividual(indexes[i]));
@@ -490,9 +510,6 @@ public class GA {
             Individual ind=new Individual(eliteIndividual);
             pop.setIndividual(ind, index);
        }
-           
-       evaluate(pop);
-//       System.out.println("\n AFTER CROSSOVER\n"+pop.printInfo(1));
         return pop;
     }
     
