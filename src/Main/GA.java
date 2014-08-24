@@ -26,17 +26,17 @@ public class GA {
     
     
     //USER DEFINED VALUES
-    private int geneLength;
+    public int geneLength;
     private int popSize=10;
-    private int mutationRate=10,operatorRate=50, tournamentSize=5;
-    private int geneticOperator=1; //  0= Lamarck Inheritance, 1 = Crossover
+    public int mutationRate=10,operatorRate=50, tournamentSize=5;
+    public int geneticOperator=1; //  0= Lamarck Inheritance, 1 = Crossover
     private int selectionMethod =1; // 0= tournament, 1= roullete wheel
-    private boolean useMutation=true;
+    public boolean useMutation=true;
     private boolean useElite=true;
  
     
     private Variable[] vars;
-    private Variable x,y;
+    public Variable x,y;
     public Individual eliteIndividual;
     private Stats myStats;
     private Function evaluatorFunction= Function.getInstance();
@@ -129,7 +129,6 @@ public class GA {
     
     public void evaluate(Population population)
     {
-        System.out.println("evaluate");
         this.upDateVariables();
         double total=0,zValue,totalOpt=0,eliteOpt;
         double realValues[]=new double[this.maxVars];

@@ -40,13 +40,13 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
     //GUI ATRIBUTES
     private JScrollPane scrollOutput;
     private JTextArea outputArea;
-    private JCheckBox elite,print;
+    private JCheckBox elite,print,showFit,showOpt;
     private JPanel options;
     private JButton start,stop;
     private boolean continuE =false,printInfo=true; 
-    private JLabel genNumber,popSize,popOptions,eliteInd;
+    private JLabel genNumber,popSize,popOptions,eliteInd,convergence;
     Font titleFont = new Font("Serif", Font.BOLD, 18);
-    private JFormattedTextField genNumberField,popSizeField;
+    private JFormattedTextField genNumberField,popSizeField,convergenceValue;
     private OptionsL optionsListener;
     private DecimalFormat df = new DecimalFormat("#000.0000000");
     private NumberFormat amountFormat;
@@ -59,14 +59,17 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
     private Stats myStats = Stats.getInstance();
     private Population initialPop;
     private Function myEvalFunction = Function.getInstance();
+    private ResultsPane myResults;
     
 
-    private int defaultPop=10,defaultGen=100;
+    private int defaultPop=10,defaultGen=100,defaultConvergence=90;
+    private long startTime,estimatedTime;
     
     
     
-    public PopulationPane()
+    public PopulationPane(ResultsPane r)
     {
+        myResults =r;
         titleFont = new Font("Serif", Font.BOLD, 18);
         startComponents();
         
@@ -95,18 +98,58 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
        options.add(goPane);
         
        g= new Graph(700,350);
-       g.setLocation(300, optionsBounds.y+50);
+       g.setLocation(300, optionsBounds.y+30);
        this.add(g);
        
+       showFit = new JCheckBox("Show Fitness PLot");
+       showFit.setBackground(options.getBackground());
+       showFit.setSelected(true);
+       showFit.setBounds(300, optionsBounds.y+385, 200, 20);
+                     showFit.addItemListener(new ItemListener() 
+        {
+            @Override
+            public void itemStateChanged(ItemEvent ie) {
+                if(ie.getStateChange()==ItemEvent.DESELECTED)
+                {
+                    g.setShowFit(false);
+                }
+                else
+                {
+                    g.setShowFit(true);
+                }
+            }
+        });
+       this.add(showFit);
+       
+       showOpt= new JCheckBox("Show Optimality Plot");
+       showOpt.setBackground(options.getBackground());
+       showOpt.setSelected(true);
+       showOpt.setBounds(550, optionsBounds.y+385, 200, 20);
+              showOpt.addItemListener(new ItemListener() 
+        {
+            @Override
+            public void itemStateChanged(ItemEvent ie) {
+                if(ie.getStateChange()==ItemEvent.DESELECTED)
+                {
+                    g.setShowOpt(false);
+                }
+                else
+                {
+                    g.setShowOpt(true);
+                }
+            }
+        });
+       this.add(showOpt);
+       
        eliteInd= new JLabel("Elite Individual:");
-       eliteInd.setBounds(300,optionsBounds.y+10, 700, 30);
+       eliteInd.setBounds(300,optionsBounds.y, 700, 30);
        eliteInd.setFont(titleFont);
        this.add(eliteInd);
        
        //BUTTONS
        optionsListener= new OptionsL();
        start = new JButton("START"); 
-       start.setBounds(optionsBounds.x+10,optionsBounds.y+260,200,40);
+       start.setBounds(optionsBounds.x+10,optionsBounds.y+290,200,40);
        start.addActionListener(optionsListener);
        options.add(start);
        
@@ -139,7 +182,7 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
        options.add(print);
        
        elite= new JCheckBox("Use Elite Individual");
-       elite.setBounds(startBounds.x, startBounds.y-70, 140, 30);
+       elite.setBounds(startBounds.x, startBounds.y-100, 140, 30);
        elite.setBackground(options.getBackground());
        elite.setSelected(true);
        elite.addItemListener(new ItemListener() 
@@ -161,28 +204,38 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
        
         popOptions=new JLabel ("Population Options");
        popOptions.setFont(titleFont);
-       popOptions.setBounds(startBounds.x,startBounds.y-100, startBounds.width, 30);
+       popOptions.setBounds(startBounds.x,startBounds.y-130, startBounds.width, 30);
        options.add(popOptions);
        
        genNumber = new JLabel("Generations to run:");
-       genNumber.setBounds(startBounds.x, startBounds.y-20, startBounds.width-50, startBounds.height/2);
+       genNumber.setBounds(startBounds.x, startBounds.y-50, startBounds.width-50, startBounds.height/2);
        options.add(genNumber);
        
        genNumberField =new JFormattedTextField(amountFormat);
        genNumberField.setValue(new Integer(defaultGen));
        genNumberField.addPropertyChangeListener(this);
-       genNumberField.setBounds(startBounds.x+150, startBounds.y-20, 50, startBounds.height/2);
+       genNumberField.setBounds(startBounds.x+150, startBounds.y-50, 50, startBounds.height/2);
        options.add(genNumberField);
        
        popSize= new JLabel("Population Size:");
-       popSize.setBounds(startBounds.x, startBounds.y-40, startBounds.width-50, startBounds.height/2);
+       popSize.setBounds(startBounds.x, startBounds.y-70, startBounds.width-50, startBounds.height/2);
        options.add(popSize);
        
        popSizeField = new JFormattedTextField(amountFormat);
-       popSizeField.setValue(new Integer(defaultPop));
+       popSizeField.setValue(defaultPop);
        popSizeField.addPropertyChangeListener(this);
-       popSizeField.setBounds(startBounds.x+150, startBounds.y-40, 50, startBounds.height/2);
+       popSizeField.setBounds(startBounds.x+150, startBounds.y-70, 50, startBounds.height/2);
        options.add(popSizeField);
+       
+       convergence= new JLabel("Convergence Value:");
+       convergence.setBounds(startBounds.x, startBounds.y-35, startBounds.width-50, 30);
+       options.add(convergence);
+       
+       convergenceValue= new JFormattedTextField(amountFormat);
+       convergenceValue.setValue(defaultConvergence);
+       convergenceValue.addPropertyChangeListener(this);
+       convergenceValue.setBounds(startBounds.x+150, startBounds.y-30, 50, startBounds.height/2);
+       options.add(convergenceValue);
     }
     
 
@@ -214,7 +267,7 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
                  initialPop= new Population(defaultPop);
                  initialPop.startIndividuals(); 
                  myGA.evaluate(initialPop);
-                                  myGA.firstRun=false;
+                 myGA.firstRun=false;
                  myGA.eliteIndividual= new Individual(initialPop.getFittest());
                  eliteValues= myGA.decodeIndividualGenes(myGA.eliteIndividual);
 //                  eliteInd.setText("Elite Individual:  ["+myGA.eliteIndividual.getId()+"] X("+df.format(eliteValues[0])+
@@ -222,9 +275,33 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
            }
 
        }
+       else if(source==convergenceValue)
+       {
+           defaultConvergence = ((Number)convergenceValue.getValue()).intValue();
+           if(defaultConvergence<1 )
+           {
+               defaultGen=90;
+               convergenceValue.setValue(defaultConvergence);
+           }     
+           myStats.setConvergenceValue(defaultConvergence);
+       }
     }
     
     public void addOutputText(String s){outputArea.append(s);}
+    
+    public void recordExecutionInfo()
+    {
+        myStats.getArraySolutions().get(myStats.getExecutionCounter()-1).popSize=myGA.getPopSize();
+        myStats.getArraySolutions().get(myStats.getExecutionCounter()-1).usingElite=myGA.getEliteEnabled();
+        myStats.getArraySolutions().get(myStats.getExecutionCounter()-1).usingMutation=myGA.useMutation;
+        myStats.getArraySolutions().get(myStats.getExecutionCounter()-1).mutationRate=myGA.mutationRate;
+        myStats.getArraySolutions().get(myStats.getExecutionCounter()-1).operatorRate=myGA.operatorRate;
+        myStats.getArraySolutions().get(myStats.getExecutionCounter()-1).setOperator(myGA.geneticOperator);
+        myStats.getArraySolutions().get(myStats.getExecutionCounter()-1).geneLenght=myGA.geneLength;
+        myStats.getArraySolutions().get(myStats.getExecutionCounter()-1).xCases=myGA.x.precision;
+        myStats.getArraySolutions().get(myStats.getExecutionCounter()-1).yCases=myGA.y.precision;
+    }
+    
     public void updateStats()
     {
      if(myGA.getEliteEnabled()==true)
@@ -237,7 +314,7 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
       }    
     }
     
-          private class OptionsL implements ActionListener
+   private class OptionsL implements ActionListener
         {
              @Override
              public void actionPerformed(ActionEvent ae) 
@@ -249,29 +326,8 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
                      
                     int loop = Integer.parseInt(genNumberField.getText());   
                     start.setEnabled(false);
-                    if(continuE==false)//first time the program runs
-                    {
-                        myGA.eliteIndividual=initialPop.getFittest();
-                         if(printInfo==true)
-                         {
-                                outputArea.append("\nINITIAL POPULATION  --Avg Fitness: "+initialPop.getAvgFitness()+"--Best Fitness: "+
-                                        myGA.eliteIndividual.getFitness()+"\n");
-                                for(int j=0;j<myGA.getPopSize();j++)
-                                {
-                                   outputArea.append("["+initialPop.getIndividual(j).getId()+"] -- "+
-                                   initialPop.getIndividual(j).getGenesString()+" -- Fitness: "+
-                                   df.format(initialPop.getIndividual(j).getFitness())+"\n");
-                                   eliteValues= myGA.decodeIndividualGenes(myGA.eliteIndividual);
-                                   eliteInd.setText("Elite Individual:  ["+myGA.eliteIndividual.getId()+"] X("+df.format(eliteValues[0])+
-                                     ") Y(" +df.format(eliteValues[1])+")Fitness = "+df.format(myGA.eliteIndividual.getFitness()));     
-                                }
-                         }
-                         updateStats();
-                    }
                     for (int i=0;i<loop;i++)
                     {
-                        initialPop = myGA.evolve(initialPop);  
-                        
                         if(printInfo==true)
                         {
                                 outputArea.append("\nGENERATION: "+myStats.getGenerations()+
@@ -281,12 +337,17 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
                                 {
                                    outputArea.append("["+initialPop.getIndividual(j).getId()+"] -- "+
                                    initialPop.getIndividual(j).getGenesString()+" -- Fitness: "+
-                                   df.format(initialPop.getIndividual(j).getFitness())+"\n");
-                                   eliteValues= myGA.decodeIndividualGenes(myGA.eliteIndividual);
-                                   eliteInd.setText("Elite Individual:  ["+myGA.eliteIndividual.getId()+"] X("+df.format(eliteValues[0])+
-                                     ") Y(" +df.format(eliteValues[1])+")Fitness = "+df.format(myGA.eliteIndividual.getFitness()));     
+                                   df.format(initialPop.getIndividual(j).getFitness())+"\n");    
                                 }
                         }
+                        startTime = System.nanoTime();    
+                            initialPop = myGA.evolve(initialPop);  
+                        estimatedTime = System.nanoTime() - startTime;
+                        myStats.addTime(estimatedTime);
+                        
+                         eliteValues= myGA.decodeIndividualGenes(myGA.eliteIndividual);
+                         eliteInd.setText("Elite Individual:  ["+myGA.eliteIndividual.getId()+"] X("+df.format(eliteValues[0])+
+                         ") Y(" +df.format(eliteValues[1])+")Fitness = "+df.format(myGA.eliteIndividual.getFitness())); 
                          updateStats();   
                      }
                     continuE=true;
@@ -306,7 +367,12 @@ public class PopulationPane extends JPanel implements PropertyChangeListener{
                            realValues=myGA.decodeIndividualGenes(myGA.eliteIndividual);
                            zValue=myEvalFunction.calcValue(realValues[0],realValues[1]);
                            myStats.recordResults(realValues[0],realValues[1], zValue,myGA.eliteIndividual.getFitness());
+                           recordExecutionInfo();
+                           myResults.updateData();
+                           myResults.addExecutionDetails(myStats.getExecutionCounter()-1);
                            myStats.clearData();
+                           myGA.eliteIndividual= new Individual(myGA.getGeneLength());
+                           
                      
                      outputArea.setText("");
                      continuE=false;

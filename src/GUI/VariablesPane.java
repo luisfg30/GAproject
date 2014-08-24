@@ -183,17 +183,24 @@ public class VariablesPane extends JPanel implements PropertyChangeListener{
         this.add(functionBox);
         functionBox.addActionListener(new FunctionListener());
         
-        img= new FunctionImagesPane();
-        img.setBounds(350, 100, 650, 500);
-        this.add(img);
-        img.setImages(plotImg);
-        img.setCurrentImage(0);
-        
-        exp= new FunctionImagesPane();
-        exp.setBounds(350, 10, 650, 60);
-        this.add(exp);
-        exp.setImages(expImg);
-        exp.setCurrentImage(0);
+        if(img!=null)
+        {
+                    img= new FunctionImagesPane();
+            img.setBounds(350, 100, 650, 500);
+            this.add(img);
+            img.setImages(plotImg);
+            img.setCurrentImage(0);
+        }
+
+        if(exp!=null)
+        {
+                    exp= new FunctionImagesPane();
+            exp.setBounds(350, 10, 650, 60);
+            this.add(exp);
+            exp.setImages(expImg);
+            exp.setCurrentImage(0);
+        }
+
     }
     
     public void setGeneStrinng()

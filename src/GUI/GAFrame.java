@@ -22,16 +22,15 @@ import javax.swing.*;
     {
        //CREATE AND SET COMPONENTS
         tabs= new JTabbedPane();
-        
-        PopulationPane p= new PopulationPane();
-        //GeneticOperatorsPane go= new GeneticOperatorsPane();
+        ResultsPane r= new ResultsPane();
+        PopulationPane p= new PopulationPane(r);
 
         //ADD COMPONENTS TO THE MAIN CONTENT PANEL
-
+        
         tabs.add("Variables & Function",v);
         //tabs.add("Genetic Options", go);
         tabs.add("Genetic Operators & Population",p);
-        
+        tabs.add("Results",r);
 
         //SET UP FRAME
      

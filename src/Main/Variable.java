@@ -13,7 +13,7 @@ package Main;
 public class Variable 
 {
     float min,max; //ranges of the domain
-    int precision;
+    public int precision;
     private int bitSize; // minimum size in bits for binary encoding
     
     public Variable(float r1, float r2, int p)

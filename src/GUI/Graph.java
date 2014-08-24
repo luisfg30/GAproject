@@ -31,6 +31,7 @@ import javax.swing.JPanel;
      private Point2D origin,xEnd,yEnd;
      Font numbers = new Font("Arial", Font.PLAIN, 10);
      Font labels = new Font("Arial", Font.BOLD, 12);
+     private boolean showOptimality=true,showFitness=true;
     
      public Graph(int w, int h)
      {
@@ -45,6 +46,18 @@ import javax.swing.JPanel;
 
      }
      
+     public void setShowOpt(boolean b)
+     {
+         this.showOptimality=b;
+         this.repaint();
+     }
+     
+     public void setShowFit(boolean b)
+     {
+         this.showFitness=b;
+         this.repaint();
+     }
+             
      public void addData(double data[])
      {
               dataAvg=myStats.getArrayFitness();
@@ -60,7 +73,7 @@ import javax.swing.JPanel;
       
        origin= new Point2D.Double(margin-15,height-margin);
        yEnd= new Point2D.Double(margin-15,margin-20);
-       xEnd= new Point2D.Double(width-margin-40,height-margin);
+       xEnd= new Point2D.Double(width-margin-55,height-margin);
       
       Line2D xAxis= new Line2D.Double(origin,xEnd);
       Line2D yAxis= new Line2D.Double(origin,yEnd);
@@ -76,16 +89,23 @@ import javax.swing.JPanel;
       g2.setColor(Color.blue);
       g2.drawString("Avg Optimality", (int)xEnd.getX()+5, (int)yEnd.getY()+110);
       g2.setColor(Color.yellow);
-      g2.drawString("Elite Optimality", (int)xEnd.getX()+5, (int)yEnd.getY()+150);
+      g2.drawString("Best Optimality", (int)xEnd.getX()+5, (int)yEnd.getY()+150);
       g2.setColor(Color.GRAY);
       g2.draw(xAxis);
       g2.draw(yAxis); 
       this.drawGrid(g2, 2, 0,dataAvg.length);
       this.drawGrid(g2, 1, 1,100);
-      this.plotData(g2, Color.red, dataAvg);      
-      this.plotData(g2, Color.green, dataBest);
-      this.plotData(g2, Color.blue, dataOpt);
-      this.plotData(g2, Color.yellow, dataEliteOpt);
+      if(showFitness==true)
+      {
+         this.plotData(g2, Color.red, dataAvg);      
+         this.plotData(g2, Color.green, dataBest);
+      }
+      if(showOptimality==true)
+      {
+        this.plotData(g2, Color.blue, dataOpt);
+        this.plotData(g2, Color.yellow, dataEliteOpt);
+      }
+
     }  
     
     public void plotData(Graphics2D g2,Color c, double dataY[])
@@ -94,10 +114,10 @@ import javax.swing.JPanel;
          {
             scaleY=(origin.getY()-yEnd.getY())/100; //in coordinates (pixels)
             scaleX=(xEnd.getX()-origin.getX())/dataY.length;
-   //         System.out.println("origin x: "+origin.getX()+" y: "+origin.getY());
-   //         System.out.println("xEnd x: "+xEnd.getX()+" y: "+xEnd.getY());
-   //         System.out.println("yEnd x: "+yEnd.getX()+" y: "+yEnd.getY());
-   //         System.out.println("scaleX: "+scaleX+" scaleY: "+scaleY);
+//            System.out.println("origin x: "+origin.getX()+" y: "+origin.getY());
+//            System.out.println("xEnd x: "+xEnd.getX()+" y: "+xEnd.getY());
+//            System.out.println("yEnd x: "+yEnd.getX()+" y: "+yEnd.getY());
+//            System.out.println("scaleX: "+scaleX+" scaleY: "+scaleY);
               Point2D p1= new Point2D.Double(origin.getX(),origin.getY());
               Point2D p2 = new Point2D.Double(p1.getX()+scaleX,origin.getY());
               Line2D line= new Line2D.Double(p1,p2);
@@ -109,8 +129,8 @@ import javax.swing.JPanel;
                   p2.setLocation(p1.getX()+scaleX*2, origin.getY()-scaleY*dataY[i]);
                   line.setLine(p1, p2);
                   g2.draw(line);
-   //               System.out.println("i: "+i+" dataY: "+dataY[i]+"\np1 x: "+p1.getX()+" y: "+p1.getY());
-   //               System.out.println("p2 x: "+p2.getX()+" y: "+p2.getY());
+//                  System.out.println("i: "+i+" dataY: "+dataY[i]+"\np1 x: "+p1.getX()+" y: "+p1.getY());
+//                  System.out.println("p2 x: "+p2.getX()+" y: "+p2.getY());
                   p1.setLocation(p2.getX(), p2.getY());
               }
          } 

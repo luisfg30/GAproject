@@ -100,6 +100,8 @@ public class Function {
         }
     }
     
+    public int getFnumber(){return fNumber;}
+    
     
     
 }

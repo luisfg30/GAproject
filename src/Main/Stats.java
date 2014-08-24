@@ -17,12 +17,12 @@ public class Stats {
     private static Stats singleton=null;
     
     private Function myEvaluator= Function.getInstance();
-
+    
     // EACH STEP VALUES
-     
      private int totalGenerations=0,FconvergenceCounter=0,avgConvergenceCounter=0,eliteConvergenceCounter=0;
      boolean FconvSet=false,avgConvset=false,eliteConvset=false;
      private double FconvergenceValue=75;//elite individual
+     private long elapsedTime=0;
      private ArrayList<Double> fitnessValues = new ArrayList();
      private ArrayList<Double> bestFitnessValues= new ArrayList();
     
@@ -51,6 +51,11 @@ public class Stats {
 //        zValues.add(v);
 //    }
     
+    public void addTime(long time)
+    {
+        elapsedTime+= time;
+    }
+    
     public void setConvergenceValue(double v)
     {
         FconvergenceValue=v;
@@ -58,16 +63,14 @@ public class Stats {
     
     public void updateConvergenceCounter(double value)
     {
-        if(value<FconvergenceValue)
+        if(this.FconvSet==false)
         {
-            if(FconvSet==false)
-                FconvergenceCounter++;
-        }
-        else
-        {
-            FconvSet=true;
-        }
-            
+            this.FconvergenceCounter++;
+            if(value>this.FconvergenceValue)
+            {
+                FconvSet=true;
+            }
+        }    
     }
     
     public void updateFitnessValues(double fitness, double bestFitness)
@@ -76,35 +79,34 @@ public class Stats {
         bestFitnessValues.add(bestFitness);
         updateConvergenceCounter(bestFitness);
         totalGenerations++;
-        System.out.println("\n GENERATION: "+totalGenerations);
     }
     
     public void updateEliteOptimality(double opt)
-    {System.out.println("update elite");
+    {
         eliteOptimality.add(opt*100);
-        if(opt*100<FconvergenceValue)
+        
+        if(this.eliteConvset==false)
         {
-            if(this.eliteConvset==false)
-                eliteConvergenceCounter++;
-        }
-        else
-        {
-            eliteConvset=true;
-        }
+            this.eliteConvergenceCounter++;
+            if(opt*100>this.FconvergenceValue)
+            {
+                eliteConvset=true;
+            }
+        }   
     }
     
     public void updateAvgValues(double opt)
-    {System.out.println("update avg");
+    {
         avgOptimality.add(opt*100);
-        if(opt*100<FconvergenceValue)
+        
+        if(this.avgConvset==false)
         {
-            if(this.avgConvset==false)
-                avgConvergenceCounter++;
-        } 
-        else
-        {
-            avgConvset=true;
-        }
+            this.avgConvergenceCounter++;
+            if(opt*100>this.FconvergenceValue)
+            {
+                avgConvset=true;
+            }
+        }   
     }
     
     public void calcAvgValues()
@@ -123,26 +125,34 @@ public class Stats {
         s.calcAccuracy(myEvaluator.OptX, myEvaluator.MinX, myEvaluator.MaxX, myEvaluator.OptY, myEvaluator.MinY, myEvaluator.MaxY);
         s.setSensivity();
         s.convValue=this.FconvergenceValue;
-        s.convCounter=this.FconvergenceCounter;
+        s.Fconvergence=this.FconvergenceCounter;
+        s.avgconvergence=this.avgConvergenceCounter;
+        s.eliteConvergence=this.eliteConvergenceCounter;
+        s.time=this.elapsedTime; //nanoseconds to seconds
         s.totalGen=this.totalGenerations;
         s.fitness=fit;
+        s.xMin=myEvaluator.MinX;
+        s.xMax=myEvaluator.MaxX;
+        s.yMin=myEvaluator.MinY;
+        s.yMax=myEvaluator.MaxY;
+        s.setEvaluator(myEvaluator.getFnumber());
         solutions.add(s);
               executionCounter++;
         
-        //debug
-              System.out.println("\nEXECUTION: "+this.executionCounter+"\n");
-        for(int i=0;i < solutions.size();i++)
-        {
-            System.out.println("["+i+"] TotalGens: "+solutions.get(i).totalGen+
-                    "\nValues ("+solutions.get(i).x+" , "+solutions.get(i).y+" , "+solutions.get(i).z+
-                    ")\n Fitness: "+solutions.get(i).fitness+
-                    "\nOptimality: "+solutions.get(i).optimality+" Accuracy: "+solutions.get(i).accuracy+
-                    " Sensivity: "+solutions.get(i).sensivity+
-                    "\n Elite FitnessConvergence("+solutions.get(i).convValue+"): "+solutions.get(i).convCounter+
-                    "\n Elite Convergence("+this.FconvergenceValue+"): "+eliteConvergenceCounter+
-                    "\n Avg Convergence("+this.FconvergenceValue+"): "+this.avgConvergenceCounter);
-        }
-        System.out.println("elite opt:"+this.eliteOptimality.size()+" avg opt: "+this.avgOptimality.size());
+//        //debug
+//              System.out.println("\nEXECUTION: "+this.executionCounter+"\n");
+//        for(int i=0;i < solutions.size();i++)
+//        {
+//            System.out.println("["+i+"] TotalGens: "+solutions.get(i).totalGen+
+//                    "\nValues ("+solutions.get(i).x+" , "+solutions.get(i).y+" , "+solutions.get(i).z+
+//                    ")\n Fitness: "+solutions.get(i).fitness+
+//                    "\nOptimality: "+solutions.get(i).optimality+" Accuracy: "+solutions.get(i).accuracy+
+//                    " Sensivity: "+solutions.get(i).sensivity+
+//                    "\n Elite FitnessConvergence("+solutions.get(i).convValue+"): "+solutions.get(i).Fconvergence+
+//                    "\n Elite Convergence("+this.FconvergenceValue+"): "+solutions.get(i).eliteConvergence+
+//                    "\n Avg Convergence("+this.FconvergenceValue+"): "+solutions.get(i).avgconvergence+
+//                    "\n Elpased Time: "+solutions.get(i).time+" nanoseconds");
+//        }
     }
     
     public void clearData(){
@@ -155,11 +165,16 @@ public class Stats {
         FconvergenceCounter=0;
         avgConvergenceCounter=0;
         eliteConvergenceCounter=0;
+        FconvSet=false;
+        avgConvset=false;
+        eliteConvset=false;
+        elapsedTime=0;
     }
     public int getGenerations(){return totalGenerations;}
     public int getFConvergenceCounter(){return FconvergenceCounter;}
     public int getExecutionCounter(){return executionCounter;}
     public double getFConvergenceValue(){return FconvergenceValue;}
+    public ArrayList<Solution> getArraySolutions(){return solutions;}
     public double[] getArrayFitness()
     {
         double array[]= new double[fitnessValues.size()];
@@ -214,10 +229,13 @@ public class Stats {
                 return optimality;
             }
         
-   private class Solution{
-        public int totalGen=0,convCounter=0;
-        public double x,y,z,fitness;
-        public double optimality,accuracy,convValue,sensivity;       
+   public class Solution{
+        public int totalGen=0,Fconvergence=0,eliteConvergence,avgconvergence,popSize;
+        public int operatorRate,mutationRate,xCases,yCases,geneLenght;
+        public double x,y,z,fitness,xMin,xMax,yMin,yMax;
+        public double optimality,accuracy,convValue,sensivity,time; 
+        public boolean usingElite,usingMutation;
+        public String selectionMethod,geneticOperator,evaluationFunction;
  
         
             public void calcAccuracy(double xOpt,double xMin,double xMax, double yOpt, double yMin, double yMax)
@@ -229,6 +247,26 @@ public class Stats {
             public void setSensivity()
             {
                 sensivity=(1-optimality)/(1-accuracy);
+            }
+            
+            public void setEvaluator(int n)
+            {
+                if(n==0)
+                {
+                    evaluationFunction="Ackley";
+                }
+            }
+            
+            public void setOperator(int n)
+            {
+                if(n==0)
+                {
+                    geneticOperator="Lamarckian Inheritance";
+                }
+                else if(n==1)
+                {
+                    geneticOperator="Classical GA";
+                }
             }
     
    }
